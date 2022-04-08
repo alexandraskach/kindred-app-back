@@ -36,6 +36,16 @@ class Contract
      */
     private $users;
 
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $ratio_money;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $point_bonus;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -96,6 +106,30 @@ class Contract
                 $user->setContract(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getRatioMoney(): ?float
+    {
+        return $this->ratio_money;
+    }
+
+    public function setRatioMoney(float $ratio_money): self
+    {
+        $this->ratio_money = $ratio_money;
+
+        return $this;
+    }
+
+    public function getPointBonus(): ?int
+    {
+        return $this->point_bonus;
+    }
+
+    public function setPointBonus(int $point_bonus): self
+    {
+        $this->point_bonus = $point_bonus;
 
         return $this;
     }

@@ -31,6 +31,11 @@ class Category
      */
     private $missions;
 
+    /**
+     * @ORM\Column(type="string", length=7)
+     */
+    private $couleur;
+
     public function __construct()
     {
         $this->missions = new ArrayCollection();
@@ -79,6 +84,18 @@ class Category
                 $mission->setCategory(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCouleur(): ?string
+    {
+        return $this->couleur;
+    }
+
+    public function setCouleur(string $couleur): self
+    {
+        $this->couleur = $couleur;
 
         return $this;
     }
