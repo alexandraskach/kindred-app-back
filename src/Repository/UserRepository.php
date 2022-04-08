@@ -52,11 +52,13 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setCreatedAt(new \DateTimeImmutable());
         $user->setUpdatedAt(new \DateTime());
         $wallet = new Wallet();
+        $wallet->setPoints(0);
         $user->setWallet($wallet);
 
 
 
         $this->manager->persist($user);
+        $this->manager->persist($wallet);
         $this->manager->flush();
         return $user;
     }

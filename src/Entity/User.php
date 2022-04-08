@@ -75,7 +75,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\OneToOne(targetEntity=Wallet::class, inversedBy="user", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $wallet;
 
@@ -106,6 +106,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
 
+
+
     public function getEmail(): ?string
     {
         return $this->email;
@@ -131,7 +133,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @deprecated since Symfony 5.3, use getUserIdentifier instead
      */
-    public function getUsername(): string
+    public function getUserName(): string
     {
         return (string) $this->email;
     }
