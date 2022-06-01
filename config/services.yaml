@@ -19,21 +19,6 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-            - '../src/Tests/'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    app.user.repository:
-
-        class: App\Repository\UserRepository
-        arguments:
-            - Symfony\Bridge\Doctrine\RegistryInterface
-
-        # Controllers
-    app.auth.controller:
-        class: App\Controller\AuthController
-        arguments:
-            - '@app.user.repository'
-    App\OpenApi\JwtDecorator:
-        decorates: 'api_platform.openapi.factory'
-        arguments: [ '@.inner' ]

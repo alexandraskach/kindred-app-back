@@ -46,6 +46,12 @@ class Contract
      */
     private $point_bonus;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="contractAvailable")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $parent;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -130,6 +136,18 @@ class Contract
     public function setPointBonus(int $point_bonus): self
     {
         $this->point_bonus = $point_bonus;
+
+        return $this;
+    }
+
+    public function getParent(): ?User
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?User $parent): self
+    {
+        $this->parent = $parent;
 
         return $this;
     }

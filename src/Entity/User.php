@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,6 +11,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
+ * @ApiResource()
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @ORM\Table(name="`user`")
  */
@@ -34,7 +36,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @var string The hashed password
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", length=255)
      */
     private $password;
 
@@ -68,10 +70,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $updatedAt;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Mission::class, mappedBy="user", orphanRemoval=true)
-     */
-    private $missions;
 
     /**
      * @ORM\OneToOne(targetEntity=Wallet::class, inversedBy="user", cascade={"persist", "remove"})
@@ -94,19 +92,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $contracts;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Contract::class, mappedBy="parent", orphanRemoval=true)
+     */
+    private $contractAvailable;
+
+
     public function __construct()
     {
-        $this->missions = new ArrayCollection();
         $this->childs = new ArrayCollection();
         $this->contracts = new ArrayCollection();
+        $this->contractAvailable = new ArrayCollection();
     }
+
+
 
     public function getId(): ?int
     {
         return $this->id;
     }
-
-
 
     public function getEmail(): ?string
     {
@@ -126,14 +130,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @see UserInterface
      */
     public function getUserIdentifier(): string
-    {
-        return (string) $this->email;
-    }
-
-    /**
-     * @deprecated since Symfony 5.3, use getUserIdentifier instead
-     */
-    public function getUserName(): string
     {
         return (string) $this->email;
     }
@@ -170,17 +166,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->password = $password;
 
         return $this;
-    }
-
-    /**
-     * Returning a salt is only needed, if you are not using a modern
-     * hashing algorithm (e.g. bcrypt or sodium) in your security.yaml.
-     *
-     * @see UserInterface
-     */
-    public function getSalt(): ?string
-    {
-        return null;
     }
 
     /**
@@ -264,36 +249,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection|Mission[]
-     */
-    public function getMissions(): Collection
-    {
-        return $this->missions;
-    }
-
-    public function addMission(Mission $mission): self
-    {
-        if (!$this->missions->contains($mission)) {
-            $this->missions[] = $mission;
-            $mission->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMission(Mission $mission): self
-    {
-        if ($this->missions->removeElement($mission)) {
-            // set the owning side to null (unless already changed)
-            if ($mission->getUser() === $this) {
-                $mission->setUser(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getWallet(): ?Wallet
     {
         return $this->wallet;
@@ -372,6 +327,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($contract->getUser() === $this) {
                 $contract->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Contract>
+     */
+    public function getContractAvailable(): Collection
+    {
+        return $this->contractAvailable;
+    }
+
+    public function addContractAvailable(Contract $contractAvailable): self
+    {
+        if (!$this->contractAvailable->contains($contractAvailable)) {
+            $this->contractAvailable[] = $contractAvailable;
+            $contractAvailable->setParent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContractAvailable(Contract $contractAvailable): self
+    {
+        if ($this->contractAvailable->removeElement($contractAvailable)) {
+            // set the owning side to null (unless already changed)
+            if ($contractAvailable->getParent() === $this) {
+                $contractAvailable->setParent(null);
             }
         }
 
