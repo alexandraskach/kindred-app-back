@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
 use App\Controller\CurrentUserController;
@@ -83,26 +84,33 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\OneToOne(targetEntity=Wallet::class, inversedBy="user", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
+     * @ApiSubresource()
      */
     private $wallet;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="childs")
+     * @ApiSubresource()
      */
     private $parent;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="parent")
+     * @ApiSubresource()
      */
     private $childs;
 
     /**
      * @ORM\OneToMany(targetEntity=UserContract::class, mappedBy="user", orphanRemoval=true)
+     * @ApiSubresource()
      */
     private $contracts;
 
+
+
     /**
      * @ORM\OneToMany(targetEntity=Contract::class, mappedBy="parent", orphanRemoval=true)
+     * @ApiSubresource()
      */
     private $contractAvailable;
 
