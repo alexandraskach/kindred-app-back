@@ -6,18 +6,19 @@ use App\Entity\Wallet;
 use App\Repository\UserRepository;
 use App\Repository\WalletRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class RegisterController extends AbstractController
 {
-
     public UserPasswordHasherInterface $passwordHasher;
-    public function __construct(UserPasswordHasherInterface $passwordHasher)
+
+    public function __construct(UserPasswordHasherInterface $passwordHasher, private Security $security)
     {
         $this->passwordHasher = $passwordHasher;
     }
@@ -62,7 +63,16 @@ class RegisterController extends AbstractController
         $entityManager->persist($user);
         $entityManager->persist($wallet);
         $entityManager->flush();
-        return new JsonResponse(['success' => 'Children created'], Response::HTTP_CREATED);
 
+        return new JsonResponse(['success' => 'Children created'], Response::HTTP_CREATED);
     }
+
+    // #[Route('/api/test', name:'test', methods: ['POST'])]
+    // public function test($username = 'user', $password = 'password')
+    // {
+    //     // $this->getUser()->getEmail();
+    //     return new JsonResponse([
+    //         'test' => $this->security->getUser(),
+    //     ]);
+    // }
 }
