@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Contract;
 use App\Entity\Wallet;
 use App\Repository\UserRepository;
 use App\Repository\WalletRepository;
@@ -47,10 +48,21 @@ class RegisterController extends AbstractController
     #[Route('/api/register_children', name:'register_children')]
     public function registerChildren(Request $request,EntityManagerInterface $entityManager, UserRepository $userRepository, WalletRepository $walletRepository): JsonResponse
     {
-        $parent = $userRepository->find($this->getUser()->getUserIdentifier());
+        $parent = $userRepository->find($this->getUser()->getId());
         $data = json_decode($request->getContent(), true);
         $wallet = new Wallet();
         $wallet->setPoints(0);
+        $entityManager->persist($wallet);
+
+        $contract = new Contract();
+        $contract->setParent($parent);
+        $contract->setDescription('contract description');
+        $contract->setRatioMoney(0.5);
+        $contract->setPointBonus(5);
+        $contract->setCreatedAt(new \DateTimeImmutable());
+        $contract->setStatus(Contract::$DRAFT);
+
+
         $user = new \App\Entity\User();
         $user->setEmail($data['email']);
         $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
@@ -61,6 +73,8 @@ class RegisterController extends AbstractController
         $user->setCreatedAt(new \DateTimeImmutable());
         $user->setUpdatedAt(new \DateTime());
         $entityManager->persist($user);
+        $contract->setUser($user);
+        $entityManager->persist($contract);
         $entityManager->persist($wallet);
         $entityManager->flush();
 

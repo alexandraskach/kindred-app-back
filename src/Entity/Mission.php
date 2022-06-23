@@ -78,10 +78,11 @@ class Mission
     private $childNotation;
 
     /**
-     * @ORM\ManyToOne(targetEntity=UserContract::class, inversedBy="missions")
+     * @ORM\ManyToOne(targetEntity=Contract::class, inversedBy="missions")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $userContract;
+    private $contract;
+
 
     public function getId(): ?int
     {
@@ -221,15 +222,16 @@ class Mission
         return $this;
     }
 
-    public function getUserContract(): ?UserContract
+    public function getContract(): ?Contract
     {
-        return $this->userContract;
+        return $this->contract;
     }
 
-    public function setUserContract(?UserContract $userContract): self
+    public function setContract(?Contract $contract): self
     {
-        $this->userContract = $userContract;
+        $this->contract = $contract;
 
         return $this;
     }
+
 }

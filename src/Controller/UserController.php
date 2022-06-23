@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Contract;
 use App\Entity\User;
+use App\Entity\Wallet;
 use App\Repository\UserRepository;
+use App\Repository\WalletRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
@@ -29,6 +32,7 @@ class UserController extends AbstractController
         $user = $userRepository->findOneBy(['email' => $data['email']]);
         if ($user) return new JsonResponse(['error' => 'Email already used'], Response::HTTP_BAD_REQUEST);
 
+
         $user = new User();
         $user->setEmail($data['email']);
         $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
@@ -37,6 +41,7 @@ class UserController extends AbstractController
         $user->setLastname($data['lastname']);
         $user->setCreatedAt(new \DateTimeImmutable());
         $user->setUpdatedAt(new \DateTime());
+
         $entityManager->persist($user);
         $entityManager->flush();
 

@@ -9,14 +9,20 @@ use App\Controller\CurrentUserController;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping\Column;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Log\Logger;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use function Symfony\Component\String\b;
 
 /**
  * @ApiResource(
  *  collectionOperations={
- *      "get","post",
+ *      "get" = {"normalization_context" = {"groups" = "User:Collection:Get"}},
+ *     "post",
  *      "current_user"={"path"="/current_user", "method"="get", "controller"=CurrentUserController::class},
  *  })
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -31,52 +37,62 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @Groups({"User:Collection:Get"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
+     * @Groups({"User:Collection:Get"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
+     * @Groups({"User:Collection:Get"})
      */
     private $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string", length=255)
+     * @Groups({"User:Collection:Get"})
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"User:Collection:Get"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"User:Collection:Get"})
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"User:Collection:Get"})
      */
     private $token;
 
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
+     * @Groups({"User:Collection:Get"})
      */
     private $expiredAt;
 
     /**
      * @ORM\Column(type="datetime_immutable")
+     * @Groups({"User:Collection:Get"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"User:Collection:Get"})
      */
     private $updatedAt;
 
@@ -85,43 +101,84 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\OneToOne(targetEntity=Wallet::class, inversedBy="user", cascade={"persist", "remove"})
      * @ORM\JoinColumn(nullable=true)
      * @ApiSubresource()
+     * @Groups({"User:Collection:Get"})
      */
     private $wallet;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="childs")
      * @ApiSubresource()
+     * @Groups({"User:Collection:Get"})
      */
     private $parent;
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="parent")
      * @ApiSubresource()
+     * @Groups({"User:Collection:Get"})
      */
     private $childs;
 
+
     /**
-     * @ORM\OneToMany(targetEntity=UserContract::class, mappedBy="user", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Reward::class, mappedBy="user", orphanRemoval=true)
      * @ApiSubresource()
+     * @Groups({"User:Collection:Get"})
+     */
+    private $rewards;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Contract::class, mappedBy="user", orphanRemoval=true)
      */
     private $contracts;
 
-
-
     /**
      * @ORM\OneToMany(targetEntity=Contract::class, mappedBy="parent", orphanRemoval=true)
-     * @ApiSubresource()
      */
-    private $contractAvailable;
+    private $parentContracts;
+
 
 
     public function __construct()
     {
         $this->childs = new ArrayCollection();
+        $this->rewards = new ArrayCollection();
         $this->contracts = new ArrayCollection();
-        $this->contractAvailable = new ArrayCollection();
+        $this->parentContracts = new ArrayCollection();
+
     }
 
+    public function getParentContracts(): ?Collection
+    {
+        return $this->parentContracts;
+    }
+
+    public function setParentContracts(?Collection $parentContracts): self
+    {
+        $this->parentContracts = $parentContracts;
+        return $this;
+    }
+
+    public function addParentContract(Contract $parentContract): self
+    {
+        if (!$this->parentContracts->contains($parentContract)) {
+            $this->parentContracts[] = $parentContract;
+            $parentContract->setParent($this);
+        }
+        return $this;
+    }
+
+    public function removeParentContract(Contract $parentContract): self
+    {
+        if ($this->parentContracts->contains($parentContract)) {
+            $this->parentContracts->removeElement($parentContract);
+            // set the owning side to null (unless already changed)
+            if ($parentContract->getParent() === $this) {
+                $parentContract->setParent(null);
+            }
+        }
+        return $this;
+    }
 
 
     public function getId(): ?int
@@ -148,7 +205,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): string
     {
-        return (string) $this->email;
+        return (string)$this->email;
     }
 
     /**
@@ -320,15 +377,46 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+
     /**
-     * @return Collection|UserContract[]
+     * @return Collection<int, Reward>
+     */
+    public function getRewards(): Collection
+    {
+        return $this->rewards;
+    }
+
+    public function addReward(Reward $reward): self
+    {
+        if (!$this->rewards->contains($reward)) {
+            $this->rewards[] = $reward;
+            $reward->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReward(Reward $reward): self
+    {
+        if ($this->rewards->removeElement($reward)) {
+            // set the owning side to null (unless already changed)
+            if ($reward->getUser() === $this) {
+                $reward->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Contract>
      */
     public function getContracts(): Collection
     {
         return $this->contracts;
     }
 
-    public function addContract(UserContract $contract): self
+    public function addContract(Contract $contract): self
     {
         if (!$this->contracts->contains($contract)) {
             $this->contracts[] = $contract;
@@ -338,7 +426,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function removeContract(UserContract $contract): self
+    public function removeContract(Contract $contract): self
     {
         if ($this->contracts->removeElement($contract)) {
             // set the owning side to null (unless already changed)
@@ -351,32 +439,51 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Contract>
+     * @return array<Contract>
+     * @Groups("User:Collection:Get")
      */
-    public function getContractAvailable(): Collection
+    public function getParentContractsDraft(): array
     {
-        return $this->contractAvailable;
+        return $this->parentContracts->filter(function (Contract $contract) {
+            return $contract->getStatus() === Contract::$DRAFT;
+        })->getValues();
     }
 
-    public function addContractAvailable(Contract $contractAvailable): self
-    {
-        if (!$this->contractAvailable->contains($contractAvailable)) {
-            $this->contractAvailable[] = $contractAvailable;
-            $contractAvailable->setParent($this);
-        }
 
-        return $this;
+    /**
+     * @return Contract|null
+     * @Groups("User:Collection:Get")
+     */
+    public function getContractActif(): ?Contract
+    {
+        $tmp = $this->contracts->filter(function (Contract $contract) {
+            return $contract->getStatus() === Contract::$SIGNED;
+        })->first();
+        return $tmp ? $tmp : null;
     }
 
-    public function removeContractAvailable(Contract $contractAvailable): self
-    {
-        if ($this->contractAvailable->removeElement($contractAvailable)) {
-            // set the owning side to null (unless already changed)
-            if ($contractAvailable->getParent() === $this) {
-                $contractAvailable->setParent(null);
-            }
-        }
 
-        return $this;
+    /**
+     * @return array<Contract>
+     * @Groups("User:Collection:Get")
+     */
+    public function getContractsArchived(): array
+    {
+        return $this->contracts->filter(function (Contract $contract) {
+            return $contract->getStatus() === Contract::$ARCHIVED;
+        })->getValues();
     }
+
+    /**
+     * @return array<Contract>
+     * @Groups("User:Collection:Get")
+     */
+    public function getContractsAvailable(): array
+    {
+        return $this->contracts->filter(function (Contract $contract) {
+            return $contract->getStatus() === Contract::$AVAILABLE;
+        })->getValues();
+    }
+
+
 }

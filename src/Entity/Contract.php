@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Repository\ContractRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,6 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Contract
 {
+
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -32,11 +35,6 @@ class Contract
     private $createdAt;
 
     /**
-     * @ORM\OneToMany(targetEntity=UserContract::class, mappedBy="contract", orphanRemoval=true)
-     */
-    private $users;
-
-    /**
      * @ORM\Column(type="float")
      */
     private $ratio_money;
@@ -49,12 +47,48 @@ class Contract
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="contractAvailable")
      * @ORM\JoinColumn(nullable=false)
+     * @ApiSubresource()
      */
     private $parent;
 
+
+    /**
+     * @ORM\Column(type="datetime_immutable", nullable=true)
+     */
+    private $signed_at;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="contracts")
+     * @ORM\JoinColumn(nullable=false)
+     * @ApiSubresource()
+     */
+    private $user;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Mission::class, mappedBy="contract", orphanRemoval=true)
+     */
+    private $missions;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $status;
+
+    /**
+     * @ORM\Column(type="datetime_immutable", nullable=true)
+     */
+    private $archived_at;
+
+
+
+    static string $AVAILABLE = 'available';
+    static string $DRAFT = 'draft';
+    static string $SIGNED = 'signed';
+    static string $ARCHIVED = 'archived';
+
     public function __construct()
     {
-        $this->users = new ArrayCollection();
+        $this->missions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -86,35 +120,6 @@ class Contract
         return $this;
     }
 
-    /**
-     * @return Collection|UserContract[]
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(UserContract $user): self
-    {
-        if (!$this->users->contains($user)) {
-            $this->users[] = $user;
-            $user->setContract($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(UserContract $user): self
-    {
-        if ($this->users->removeElement($user)) {
-            // set the owning side to null (unless already changed)
-            if ($user->getContract() === $this) {
-                $user->setContract(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getRatioMoney(): ?float
     {
@@ -151,4 +156,89 @@ class Contract
 
         return $this;
     }
+
+    public function getSignedAt(): ?\DateTimeImmutable
+    {
+        return $this->signed_at;
+    }
+
+    public function setSignedAt(?\DateTimeImmutable $signed_at): self
+    {
+        $this->signed_at = $signed_at;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Mission>
+     */
+    public function getMissions(): Collection
+    {
+        return $this->missions;
+    }
+
+    public function addMission(Mission $mission): self
+    {
+        if (!$this->missions->contains($mission)) {
+            $this->missions[] = $mission;
+            $mission->setContract($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMission(Mission $mission): self
+    {
+        if ($this->missions->removeElement($mission)) {
+            // set the owning side to null (unless already changed)
+            if ($mission->getContract() === $this) {
+                $mission->setContract(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
+
+    public function hasStatut(string $status): bool
+    {
+        return $this->status == $status;
+    }
+
+    public function getArchivedAt(): ?\DateTimeImmutable
+    {
+        return $this->archived_at;
+    }
+
+    public function setArchivedAt(\DateTimeImmutable $archived_at): self
+    {
+        $this->archived_at = $archived_at;
+
+        return $this;
+    }
+
 }
