@@ -52,7 +52,8 @@ class UsersFixtures extends Fixture
             $contract->setStatus(Contract::$DRAFT);
             $contract->setCreatedAt(new \DateTimeImmutable());
             $contract->setParent($parent);
-
+            $manager->persist($parent);
+            $manager->persist($contract);
 
             $wallet = new Wallet();
             $wallet->setPoints(0);
