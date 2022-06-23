@@ -25,6 +25,11 @@ class Mission
     private $description;
 
     /**
+     * @ORM\Column(type="text")
+     */
+    private $title;
+
+    /**
      * @ORM\Column(type="integer")
      */
     private $points;
@@ -88,11 +93,24 @@ class Mission
         return $this->description;
     }
 
+
     public function setDescription(string $description): self
     {
         $this->description = $description;
 
         return $this;
+    }
+
+    public function setTitle(string $title): self
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
     }
 
     public function getPoints(): ?int
