@@ -109,6 +109,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="childs")
      * @ApiSubresource()
      * @Groups({"User:Collection:Get"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $parent;
 
@@ -119,7 +120,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     private $childs;
 
-
     /**
      * @ORM\OneToMany(targetEntity=Reward::class, mappedBy="user", orphanRemoval=true)
      * @ApiSubresource()
@@ -128,58 +128,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $rewards;
 
     /**
-     * @ORM\OneToMany(targetEntity=Contract::class, mappedBy="user", orphanRemoval=true)
-     */
-    private $contracts;
-
-    /**
      * @ORM\OneToMany(targetEntity=Contract::class, mappedBy="parent", orphanRemoval=true)
      */
     private $parentContracts;
 
-
+    /**
+     * @ORM\OneToOne(targetEntity=Contract::class, mappedBy="child", cascade={"persist", "remove"})
+     */
+    private $childContract;
 
     public function __construct()
     {
         $this->childs = new ArrayCollection();
         $this->rewards = new ArrayCollection();
-        $this->contracts = new ArrayCollection();
         $this->parentContracts = new ArrayCollection();
 
     }
-
-    public function getParentContracts(): ?Collection
-    {
-        return $this->parentContracts;
-    }
-
-    public function setParentContracts(?Collection $parentContracts): self
-    {
-        $this->parentContracts = $parentContracts;
-        return $this;
-    }
-
-    public function addParentContract(Contract $parentContract): self
-    {
-        if (!$this->parentContracts->contains($parentContract)) {
-            $this->parentContracts[] = $parentContract;
-            $parentContract->setParent($this);
-        }
-        return $this;
-    }
-
-    public function removeParentContract(Contract $parentContract): self
-    {
-        if ($this->parentContracts->contains($parentContract)) {
-            $this->parentContracts->removeElement($parentContract);
-            // set the owning side to null (unless already changed)
-            if ($parentContract->getParent() === $this) {
-                $parentContract->setParent(null);
-            }
-        }
-        return $this;
-    }
-
 
     public function getId(): ?int
     {
@@ -377,7 +341,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-
     /**
      * @return Collection<int, Reward>
      */
@@ -411,79 +374,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Contract>
      */
-    public function getContracts(): Collection
+    public function getParentContracts(): Collection
     {
-        return $this->contracts;
+        return $this->parentContracts;
     }
 
-    public function addContract(Contract $contract): self
+    public function addParentContract(Contract $parentContract): self
     {
-        if (!$this->contracts->contains($contract)) {
-            $this->contracts[] = $contract;
-            $contract->setUser($this);
+        if (!$this->parentContracts->contains($parentContract)) {
+            $this->parentContracts[] = $parentContract;
+            $parentContract->setParent($this);
         }
 
         return $this;
     }
 
-    public function removeContract(Contract $contract): self
+    public function removeParentContract(Contract $parentContract): self
     {
-        if ($this->contracts->removeElement($contract)) {
+        if ($this->parentContracts->removeElement($parentContract)) {
             // set the owning side to null (unless already changed)
-            if ($contract->getUser() === $this) {
-                $contract->setUser(null);
+            if ($parentContract->getParent() === $this) {
+                $parentContract->setParent(null);
             }
         }
 
         return $this;
     }
 
-    /**
-     * @return array<Contract>
-     * @Groups("User:Collection:Get")
-     */
-    public function getParentContractsDraft(): array
+    public function getChildContract(): ?Contract
     {
-        return $this->parentContracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === Contract::$DRAFT;
-        })->getValues();
+        return $this->childContract;
     }
 
-
-    /**
-     * @return Contract|null
-     * @Groups("User:Collection:Get")
-     */
-    public function getContractActif(): ?Contract
+    public function setChildContract(Contract $childContract): self
     {
-        $tmp = $this->contracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === Contract::$SIGNED;
-        })->first();
-        return $tmp ? $tmp : null;
+        // set the owning side of the relation if necessary
+        if ($childContract->getChild() !== $this) {
+            $childContract->setChild($this);
+        }
+
+        $this->childContract = $childContract;
+
+        return $this;
     }
-
-
-    /**
-     * @return array<Contract>
-     * @Groups("User:Collection:Get")
-     */
-    public function getContractsArchived(): array
-    {
-        return $this->contracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === Contract::$ARCHIVED;
-        })->getValues();
-    }
-
-    /**
-     * @return array<Contract>
-     * @Groups("User:Collection:Get")
-     */
-    public function getContractsAvailable(): array
-    {
-        return $this->contracts->filter(function (Contract $contract) {
-            return $contract->getStatus() === Contract::$AVAILABLE;
-        })->getValues();
-    }
-
-
 }

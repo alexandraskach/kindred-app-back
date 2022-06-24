@@ -15,8 +15,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Contract
 {
-
-
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -37,54 +35,39 @@ class Contract
     /**
      * @ORM\Column(type="float")
      */
-    private $ratio_money;
+    private $ratioMoney;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $point_bonus;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="contractAvailable")
-     * @ORM\JoinColumn(nullable=false)
-     * @ApiSubresource()
-     */
-    private $parent;
-
+    private $pointBonus;
 
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private $signed_at;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="contracts")
-     * @ORM\JoinColumn(nullable=false)
-     * @ApiSubresource()
-     */
-    private $user;
-
+    private $signedAt;
+    
     /**
      * @ORM\OneToMany(targetEntity=Mission::class, mappedBy="contract", orphanRemoval=true)
      */
     private $missions;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $status;
-
-    /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private $archived_at;
+    private $archivedAt;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="parentContracts")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $parent;
 
-
-    static string $AVAILABLE = 'available';
-    static string $DRAFT = 'draft';
-    static string $SIGNED = 'signed';
-    static string $ARCHIVED = 'archived';
+    /**
+     * @ORM\OneToOne(targetEntity=User::class, inversedBy="childContract", cascade={"persist", "remove"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $child;
 
     public function __construct()
     {
@@ -120,70 +103,42 @@ class Contract
         return $this;
     }
 
-
     public function getRatioMoney(): ?float
     {
-        return $this->ratio_money;
+        return $this->ratioMoney;
     }
 
-    public function setRatioMoney(float $ratio_money): self
+    public function setRatioMoney(float $ratioMoney): self
     {
-        $this->ratio_money = $ratio_money;
+        $this->ratioMoney = $ratioMoney;
 
         return $this;
     }
 
     public function getPointBonus(): ?int
     {
-        return $this->point_bonus;
+        return $this->pointBonus;
     }
 
-    public function setPointBonus(int $point_bonus): self
+    public function setPointBonus(int $pointBonus): self
     {
-        $this->point_bonus = $point_bonus;
-
-        return $this;
-    }
-
-    public function getParent(): ?User
-    {
-        return $this->parent;
-    }
-
-    public function setParent(?User $parent): self
-    {
-        $this->parent = $parent;
+        $this->pointBonus = $pointBonus;
 
         return $this;
     }
 
     public function getSignedAt(): ?\DateTimeImmutable
     {
-        return $this->signed_at;
+        return $this->signedAt;
     }
 
-    public function setSignedAt(?\DateTimeImmutable $signed_at): self
+    public function setSignedAt(?\DateTimeImmutable $signedAt): self
     {
-        $this->signed_at = $signed_at;
+        $this->signedAt = $signedAt;
 
         return $this;
     }
 
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Mission>
-     */
     public function getMissions(): Collection
     {
         return $this->missions;
@@ -211,34 +166,44 @@ class Contract
         return $this;
     }
 
-    public function getStatus(): ?string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status): self
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
-
-    public function hasStatut(string $status): bool
-    {
-        return $this->status == $status;
-    }
+    // public function getStatus(): ?string
+    // {
+    //     return $this->status;
+    // }
 
     public function getArchivedAt(): ?\DateTimeImmutable
     {
-        return $this->archived_at;
+        return $this->archivedAt;
     }
 
-    public function setArchivedAt(\DateTimeImmutable $archived_at): self
+    public function setArchivedAt(\DateTimeImmutable $archivedAt): self
     {
-        $this->archived_at = $archived_at;
+        $this->archivedAt = $archivedAt;
 
         return $this;
     }
 
+    public function getParent(): ?User
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?User $parent): self
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    public function getChild(): ?User
+    {
+        return $this->child;
+    }
+
+    public function setChild(User $child): self
+    {
+        $this->child = $child;
+
+        return $this;
+    }
 }
