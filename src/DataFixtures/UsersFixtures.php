@@ -31,15 +31,6 @@ class UsersFixtures extends Fixture
         $parent->setUpdatedAt(new \DateTime());
         $manager->persist($parent);
 
-        // rewards
-        for ($i = 0; $i < 10; $i++) {
-            $reward = new Reward();
-            $reward->setDescription('Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime dignissimos, magnam doloremque sequi error saepe eaque maiores quia enim quisquam assumenda quos laudantium eum molestiae nobis soluta voluptatum dolor! Minus.');
-            $reward->setPoints(rand(5,10) * 20);
-            $reward->setUser($parent);
-            $manager->persist($reward);
-        }
-
         for($i = 2; $i < 4; $i++) {
             
             // wallet
@@ -68,6 +59,15 @@ class UsersFixtures extends Fixture
             $contract->setParent($parent);
             $contract->setChild($child);
             $manager->persist($contract);
+
+            // rewards
+            for ($i = 0; $i < 10; $i++) {
+                $reward = new Reward();
+                $reward->setDescription('Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime dignissimos, magnam doloremque sequi error saepe eaque maiores quia enim quisquam assumenda quos laudantium eum molestiae nobis soluta voluptatum dolor! Minus.');
+                $reward->setPoints(rand(5,10) * 20);
+                $reward->setUser($child);
+                $manager->persist($reward);
+            }
         }
 
         $manager->flush();
