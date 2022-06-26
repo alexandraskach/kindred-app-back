@@ -68,6 +68,16 @@ class Mission
      */
     private $ratings;
 
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $start;
+
+    /**
+     * @ORM\Column(type="date", nullable=true)
+     */
+    private $end;
+
     public function __construct()
     {
         $this->ratings = new ArrayCollection();
@@ -201,6 +211,30 @@ class Mission
                 $rating->setMission(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStart(): ?\DateTimeInterface
+    {
+        return $this->start;
+    }
+
+    public function setStart(\DateTimeInterface $start): self
+    {
+        $this->start = $start;
+
+        return $this;
+    }
+
+    public function getEnd(): ?\DateTimeInterface
+    {
+        return $this->end;
+    }
+
+    public function setEnd(?\DateTimeInterface $end): self
+    {
+        $this->end = $end;
 
         return $this;
     }
