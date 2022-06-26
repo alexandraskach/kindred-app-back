@@ -53,7 +53,7 @@ class UsersFixtures extends Fixture
             // contract
             $contract = new Contract();
             $contract->setDescription('contract description');
-            $contract->setRatioMoney(0.5);
+            $contract->setRatioMoney(0);
             $contract->setPointBonus(5);
             $contract->setCreatedAt(new \DateTimeImmutable());
             $contract->setParent($parent);
@@ -68,6 +68,11 @@ class UsersFixtures extends Fixture
                 $reward->setUser($child);
                 $manager->persist($reward);
             }
+
+            $wallet = new Wallet();
+            $wallet->setPoints(rand(150, 300));
+            $wallet->setUser($child);
+            $manager->persist($wallet);
         }
 
         $manager->flush();

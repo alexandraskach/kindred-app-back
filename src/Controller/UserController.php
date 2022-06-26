@@ -32,6 +32,8 @@ class UserController extends AbstractController
         $user = $userRepository->findOneBy(['email' => $data['email']]);
         if ($user) return new JsonResponse(['error' => 'Email already used'], Response::HTTP_BAD_REQUEST);
 
+        $wallet = new Wallet();
+        $wallet->setPoints(0);
 
         $user = new User();
         $user->setEmail($data['email']);
@@ -41,6 +43,20 @@ class UserController extends AbstractController
         $user->setLastname($data['lastname']);
         $user->setCreatedAt(new \DateTimeImmutable());
         $user->setUpdatedAt(new \DateTime());
+        $user->setWallet($wallet);
+
+        if (isset($data['parentId'])) {
+            $parent = $userRepository->findOneBy(['id' => $data['parentId']]);
+            $user->setParent($parent);
+
+            $contract = new Contract();
+            $contract->setCreatedAt(new \DateTimeImmutable());
+            $contract->setRatioMoney(0);
+            $contract->setPointBonus(0);
+            $contract->setParent($parent);
+            $contract->setChild($user);
+            $entityManager->persist($contract);
+        }
 
         $entityManager->persist($user);
         $entityManager->flush();

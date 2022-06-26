@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\Notation;
+use App\Entity\Rating;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Notation|null find($id, $lockMode = null, $lockVersion = null)
- * @method Notation|null findOneBy(array $criteria, array $orderBy = null)
- * @method Notation[]    findAll()
- * @method Notation[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Rating|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Rating|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Rating[]    findAll()
+ * @method Rating[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class NotationRepository extends ServiceEntityRepository
+class RatingRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Notation::class);
+        parent::__construct($registry, Rating::class);
     }
 
     // /**
-    //  * @return Notation[] Returns an array of Notation objects
+    //  * @return Rating[] Returns an array of Rating objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class NotationRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?Notation
+    public function findOneBySomeField($value): ?Rating
     {
         return $this->createQueryBuilder('n')
             ->andWhere('n.exampleField = :val')

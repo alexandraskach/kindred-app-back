@@ -102,11 +102,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\JoinColumn(nullable=true)
      * @ApiSubresource()
      * @Groups({"User:Collection:Get"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $wallet;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="childs")
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="children")
      * @ApiSubresource()
      * @Groups({"User:Collection:Get"})
      * @ORM\JoinColumn(onDelete="CASCADE")
@@ -118,12 +119,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ApiSubresource()
      * @Groups({"User:Collection:Get"})
      */
-    private $childs;
+    private $children;
 
     /**
      * @ORM\OneToMany(targetEntity=Reward::class, mappedBy="user", orphanRemoval=true)
      * @ApiSubresource()
      * @Groups({"User:Collection:Get"})
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $rewards;
 
@@ -139,7 +141,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->childs = new ArrayCollection();
+        $this->children = new ArrayCollection();
         $this->rewards = new ArrayCollection();
         $this->parentContracts = new ArrayCollection();
 
@@ -321,13 +323,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getChilds(): Collection
     {
-        return $this->childs;
+        return $this->children;
     }
 
     public function addChild(self $child): self
     {
-        if (!$this->childs->contains($child)) {
-            $this->childs[] = $child;
+        if (!$this->children->contains($child)) {
+            $this->children[] = $child;
             $child->setParent($this);
         }
 
@@ -336,7 +338,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function removeChild(self $child): self
     {
-        if ($this->childs->removeElement($child)) {
+        if ($this->children->removeElement($child)) {
             // set the owning side to null (unless already changed)
             if ($child->getParent() === $this) {
                 $child->setParent(null);
