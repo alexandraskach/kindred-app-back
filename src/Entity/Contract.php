@@ -46,9 +46,10 @@ class Contract
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
     private $signedAt;
-    
+
     /**
      * @ORM\OneToMany(targetEntity=Mission::class, mappedBy="contract", orphanRemoval=true)
+     * @ApiSubresource()
      */
     private $missions;
 

@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Category;
 use App\Entity\Contract;
 use App\Entity\Mission;
+use App\Entity\Rating;
 use App\Entity\Reward;
 use App\Entity\User;
 use App\Entity\Wallet;
@@ -78,7 +79,7 @@ class UsersFixtures extends Fixture
             $category->setCouleur("red");
             $manager->persist($category);
 
-            // missions
+            // mission
             for ($i = 0; $i < 5; $i++) {
                 $mission = new Mission();
                 $mission->setTitle('Wash the dishes');
@@ -88,13 +89,19 @@ class UsersFixtures extends Fixture
                 $mission->setCreatedAt(new \DateTimeImmutable());
                 $mission->setUpdatedAt(new \DateTime());
                 $mission->setStart(new \DateTimeImmutable('2022-06-27'));
-                $mission->setEnd(new \DateTimeImmutable('2022-07-06'));
+                $mission->setEnd(new \DateTimeImmutable('2022-07-04'));
                 $mission->setContract($contract);
                 $mission->setCategory($category);
                 $manager->persist($mission);
             }
 
-
+            // rating
+            // $rating = new Rating();
+            // $rating->setParentRating(5);
+            // $rating->setChildRating(5);
+            // $rating->setWeek(new \DateTime("2022-06-27"));
+            // $rating->setMission($mission);
+            // $manager->persist($rating);
 
             $wallet = new Wallet();
             $wallet->setPoints(rand(150, 300));
