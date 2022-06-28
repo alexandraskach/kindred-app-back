@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use App\Repository\RatingRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -37,6 +38,7 @@ class Rating
     /**
      * @ORM\ManyToOne(targetEntity=Mission::class, inversedBy="ratings")
      * @ORM\JoinColumn(nullable=false)
+     * @ApiSubresource()
      */
     private $mission;
 

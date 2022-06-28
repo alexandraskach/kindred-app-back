@@ -2,7 +2,10 @@
 
 namespace App\DataFixtures;
 
+use App\Entity\Category;
 use App\Entity\Contract;
+use App\Entity\Mission;
+use App\Entity\Rating;
 use App\Entity\Reward;
 use App\Entity\User;
 use App\Entity\Wallet;
@@ -19,7 +22,7 @@ class UsersFixtures extends Fixture
     }
 
 
-    public function load(ObjectManager $manager, ): void
+    public function load(ObjectManager $manager,): void
     {
         // parent
         $parent = new User();
@@ -31,8 +34,8 @@ class UsersFixtures extends Fixture
         $parent->setUpdatedAt(new \DateTime());
         $manager->persist($parent);
 
-        for($i = 2; $i < 4; $i++) {
-            
+        for ($i = 2; $i < 4; $i++) {
+
             // wallet
             $wallet = new Wallet();
             $wallet->setPoints(0);
@@ -64,10 +67,41 @@ class UsersFixtures extends Fixture
             for ($i = 0; $i < 10; $i++) {
                 $reward = new Reward();
                 $reward->setDescription('Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime dignissimos, magnam doloremque sequi error saepe eaque maiores quia enim quisquam assumenda quos laudantium eum molestiae nobis soluta voluptatum dolor! Minus.');
-                $reward->setPoints(rand(5,10) * 20);
+                $reward->setPoints(rand(5, 10) * 20);
                 $reward->setUser($child);
                 $manager->persist($reward);
             }
+
+            //category
+
+            $category = new Category();
+            $category->setName("Household");
+            $category->setCouleur("red");
+            $manager->persist($category);
+
+            // mission
+            for ($i = 0; $i < 5; $i++) {
+                $mission = new Mission();
+                $mission->setTitle('Wash the dishes');
+                $mission->setDescription('Lorem ipsum dolor sit amet consectetur adipisicing elit. Maxime dignissimos, magnam doloremque sequi error saepe eaque maiores quia enim quisquam assumenda quos laudantium eum molestiae nobis soluta voluptatum dolor! Minus.');
+                $mission->setPoints(rand(5, 10) * 20);
+                $mission->setIsRepeated(false);
+                $mission->setCreatedAt(new \DateTimeImmutable());
+                $mission->setUpdatedAt(new \DateTime());
+                $mission->setStart(new \DateTimeImmutable('2022-06-27'));
+                $mission->setEnd(new \DateTimeImmutable('2022-07-04'));
+                $mission->setContract($contract);
+                $mission->setCategory($category);
+                $manager->persist($mission);
+            }
+
+            // rating
+            // $rating = new Rating();
+            // $rating->setParentRating(5);
+            // $rating->setChildRating(5);
+            // $rating->setWeek(new \DateTime("2022-06-27"));
+            // $rating->setMission($mission);
+            // $manager->persist($rating);
 
             $wallet = new Wallet();
             $wallet->setPoints(rand(150, 300));
