@@ -40,6 +40,12 @@ class Rating
      */
     private $mission;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Contract::class, inversedBy="ratings")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $contract;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -89,6 +95,18 @@ class Rating
     public function setWeek(\DateTimeInterface $week): self
     {
         $this->week = $week;
+
+        return $this;
+    }
+
+    public function getContract(): ?Contract
+    {
+        return $this->contract;
+    }
+
+    public function setContract(?Contract $contract): self
+    {
+        $this->contract = $contract;
 
         return $this;
     }

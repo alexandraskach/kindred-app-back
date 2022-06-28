@@ -49,6 +49,7 @@ class Contract
     
     /**
      * @ORM\OneToMany(targetEntity=Mission::class, mappedBy="contract", orphanRemoval=true)
+     * @ApiSubresource()
      */
     private $missions;
 
@@ -69,9 +70,16 @@ class Contract
      */
     private $child;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Rating::class, mappedBy="contract", orphanRemoval=true)
+     * @ApiSubresource()
+     */
+    private $ratings;
+
     public function __construct()
     {
         $this->missions = new ArrayCollection();
+        $this->ratings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -203,6 +211,36 @@ class Contract
     public function setChild(User $child): self
     {
         $this->child = $child;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Rating>
+     */
+    public function getRatings(): Collection
+    {
+        return $this->ratings;
+    }
+
+    public function addRating(Rating $rating): self
+    {
+        if (!$this->ratings->contains($rating)) {
+            $this->ratings[] = $rating;
+            $rating->setContract($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRating(Rating $rating): self
+    {
+        if ($this->ratings->removeElement($rating)) {
+            // set the owning side to null (unless already changed)
+            if ($rating->getContract() === $this) {
+                $rating->setContract(null);
+            }
+        }
 
         return $this;
     }

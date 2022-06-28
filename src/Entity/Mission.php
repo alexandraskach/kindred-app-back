@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Core\Annotation\ApiResource;
-use App\Repository\MissionRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\MissionRepository;
+use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiSubresource;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ApiResource()
@@ -53,7 +54,7 @@ class Mission
 
     /**
      * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="missions")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $category;
 
@@ -65,6 +66,7 @@ class Mission
 
     /**
      * @ORM\OneToMany(targetEntity=Rating::class, mappedBy="mission", orphanRemoval=true)
+     * @ApiSubresource()
      */
     private $ratings;
 

@@ -22,10 +22,10 @@ current_user:
     defaults:
         _controller: App\Controller\UserController::current
 
-test:
-    path: /api/test
-    methods: ['GET', 'POST']
-    defaults:
-        _controller: App\Controller\CurrentUserController::test
+ratings_by_contract:
+    path: /api/ratings-by-contract/{contractId}
+    methods: ['GET']
+    controller: App\Controller\MissionController::getRatingsByContract
+    # defaults:
         # _api_resource_class: App\Entity\User
         # _api_item_operation_name: post_publication
