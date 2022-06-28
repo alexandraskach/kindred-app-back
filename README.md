@@ -9,7 +9,7 @@ Les principaux frameworks et librairies utilisées pour ce projet sont :
 - [api-platform](https://api-platform.com/) : framework PHP pour le développement d'API REST.
 - [jwt-authentication-bundle](https://github.com/lexik/LexikJWTAuthenticationBundle): bundle pour l'authentification JWT.
 - [doctrine-fixtures-bundle](https://symfony.com/bundles/DoctrineFixturesBundle/current/index.html): bundle pour gérer les fixtures.
-- [maker-bundle](https://symfony.com/bundles/MakerBundle/current/index.html): bundle pour créer les entités, controller etc .
+- [maker-bundle](https://symfony.com/bundles/SymfonyMakerBundle/current/index.html): bundle pour créer les entités, controller etc .
 
 
 ## Installation
